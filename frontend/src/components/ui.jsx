@@ -43,3 +43,32 @@ export function EmptyState({ title, subtitle }) {
 export function Spinner() {
   return <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
 }
+
+export function Modal({ isOpen, onClose, title, children, type, department }) {
+  if (!isOpen) return null
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
+        {/* Header */}
+        <div className="sticky top-0 border-b border-slate-200 bg-gradient-to-r from-indigo-50 to-sky-50 px-8 py-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold text-slate-900">{title}</h2>
+              {type && <p className="mt-2 text-sm text-slate-600">Opportunity Type: <span className="font-semibold text-indigo-600">{type}</span></p>}
+            </div>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        {/* Content */}
+        <div className="p-8">{children}</div>
+      </div>
+    </div>
+  )
+}

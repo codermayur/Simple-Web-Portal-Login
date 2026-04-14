@@ -1,16 +1,1 @@
-[
-  {
-    "_id": "opp-001",
-    "announcementHeading": "SDE Internship Drive 2026",
-    "type": "Internship",
-    "description": "Internship opportunity for final year students with strong JavaScript and React fundamentals.",
-    "eligibilityCriteria": "CGPA >= 7.0, no active backlogs",
-    "lastDate": "2026-08-15",
-    "department": "B.Sc.IT",
-    "applicationLink": "https://example.com/apply/sde-internship-2026",
-    "createdBy": "placement_faculty@vsit.edu.in",
-    "createdAt": "2026-04-13T10:30:00.000Z",
-    "updatedAt": "2026-04-13T10:30:00.000Z",
-    "status": "active"
-  }
-]
+[]

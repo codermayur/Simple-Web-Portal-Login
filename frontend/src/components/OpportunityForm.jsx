@@ -50,27 +50,40 @@ export default function OpportunityForm({ value, onChange, onSubmit, submitLabel
         <div>
           <label className="label-modern">Description</label>
           <textarea
-            rows={6}
-            maxLength={500}
+            rows={12}
+            maxLength={10000}
             className="input-modern w-full"
             value={value.description}
             onChange={(e) => setField('description', e.target.value)}
-            placeholder="Write concise details and timeline."
+            placeholder="Write detailed opportunity details, responsibilities, requirements, stipend info, venue, important notes, etc."
+            title="Max 10000 characters - suitable for long job descriptions"
           />
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="label-modern">Eligibility Criteria</label>
-            <input
-              className="input-modern w-full"
-              value={value.eligibilityCriteria}
-              onChange={(e) => setField('eligibilityCriteria', e.target.value)}
-              placeholder="CGPA >= 7.0, no active backlogs"
-            />
-          </div>
-          <div>
-            <label className="label-modern">Last Date</label>
-            <input type="date" min={today} className="input-modern w-full" value={value.lastDate} onChange={(e) => setField('lastDate', e.target.value)} />
+        <div>
+          <label className="label-modern">Last Date</label>
+          <input type="date" min={today} className="input-modern w-full" value={value.lastDate} onChange={(e) => setField('lastDate', e.target.value)} />
+        </div>
+        <div>
+          <label className="label-modern block mb-3">Eligibility Criteria</label>
+          <div className="grid gap-3 md:grid-cols-2">
+            {['First Year', 'Second Year', 'Third Year', 'Masters'].map((year) => (
+              <label key={year} className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="checkbox"
+                  checked={value.yearEligibility?.includes(year) || false}
+                  onChange={(e) => {
+                    const current = value.yearEligibility || []
+                    if (e.target.checked) {
+                      setField('yearEligibility', [...current, year])
+                    } else {
+                      setField('yearEligibility', current.filter((y) => y !== year))
+                    }
+                  }}
+                  className="rounded w-4 h-4 text-indigo-600 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-slate-700">{year}</span>
+              </label>
+            ))}
           </div>
         </div>
         <div>
