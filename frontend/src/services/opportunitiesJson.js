@@ -111,3 +111,16 @@ export async function deleteOpportunity(id) {
     return { error: error.message }
   }
 }
+
+export async function getOpportunityById(id) {
+  try {
+    const response = await getOpportunities();
+    if (response?.data) {
+      const opp = response.data.find(item => item._id === id || item.id === id);
+      return opp ? { data: opp } : { error: 'Opportunity not found' };
+    }
+    return { error: 'Failed to fetch opportunities' };
+  } catch (error) {
+    return { error: error.message };
+  }
+}

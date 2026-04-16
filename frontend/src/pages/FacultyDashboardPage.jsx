@@ -9,9 +9,11 @@ import {
   deleteOpportunity,
   getOpportunities,
 } from '../services/opportunitiesJson'
+import { useNavigate } from 'react-router-dom'
 
 export default function FacultyDashboardPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [all, setAll] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -21,6 +23,10 @@ export default function FacultyDashboardPage() {
   const [search, setSearch] = useState('')
   const [selectedDepartment, setSelectedDepartment] = useState('Broadcast to All')
   const [sortOrder, setSortOrder] = useState('asc')
+
+  const handleEdit = (opp) => {
+    navigate(`/faculty/opportunities?edit=${opp._id || opp.id}`)
+  }
 
   const opportunities = useMemo(() =>
     Array.isArray(all) ? all.filter((opp) => opp.createdBy === user?.email) : [],
@@ -162,7 +168,7 @@ export default function FacultyDashboardPage() {
                       <EmptyState title="No active opportunities" subtitle="All your opportunities have expired" />
                     ) : (
                       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                        {active.map((opp) => (
+{active.map((opp) => (
                           <OpportunityCard
                             key={opp.id}
                             opportunity={opp}
@@ -170,6 +176,7 @@ export default function FacultyDashboardPage() {
                               setSelectedOpportunity(opp)
                               setIsModalOpen(true)
                             }}
+                            onEdit={handleEdit}
                             onDelete={async (id) => {
                               if (!window.confirm('Are you sure you want to delete this opportunity?')) return
                               try {
@@ -197,7 +204,7 @@ export default function FacultyDashboardPage() {
                       <EmptyState title="No archived opportunities" subtitle="Expired opportunities will appear here" />
                     ) : (
                       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                        {archived.map((opp) => (
+{archived.map((opp) => (
                           <OpportunityCard
                             key={opp.id}
                             opportunity={opp}
@@ -205,6 +212,7 @@ export default function FacultyDashboardPage() {
                               setSelectedOpportunity(opp)
                               setIsModalOpen(true)
                             }}
+                            onEdit={handleEdit}
                             onDelete={async (id) => {
                               if (!window.confirm('Are you sure you want to delete this opportunity?')) return
                               try {

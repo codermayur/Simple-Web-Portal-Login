@@ -2,7 +2,7 @@
   {
     "_id": "a8626175-955c-47a5-bd69-c973d7faa949",
     "announcementHeading": "erq 2026",
-    "type": "Internship",
+    "type": "Placement",
     "description": "Education empowers individuals and shapes societies. It builds knowledge, critical thinking, and values. A well-educated population contributes to economic growth and social harmony. Access to quality education should be a fundamental right for everyone.",
     "eligibilityCriteria": "Second Year, First Year, Third Year",
     "lastDate": "2026-04-16",
@@ -10,8 +10,17 @@
     "applicationLink": "https://www.youtube.com/watch?v=bP8ATWCvqzw&list=RDbP8ATWCvqzw&start_radio=1",
     "createdBy": "placement_faculty@vsit.edu.in",
     "createdAt": "2026-04-15T13:24:29.641Z",
-    "updatedAt": "2026-04-15T13:24:29.641Z",
-    "status": "active"
+    "updatedAt": "2026-04-16T12:56:26.500Z",
+    "status": "active",
+    "id": "a8626175-955c-47a5-bd69-c973d7faa949",
+    "yearEligibility": [
+      "Second Year",
+      "First Year",
+      "Third Year"
+    ],
+    "departments": [
+      "B.Sc.DS"
+    ]
   },
   {
     "_id": "0a89d90b-7bb0-401f-9579-2ce7e1e43aa2",

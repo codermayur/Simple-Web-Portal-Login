@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Layout from '../components/Layout'
@@ -12,6 +12,7 @@ import {
   createOpportunity,
   deleteOpportunity,
   getOpportunities,
+  getOpportunityById,
   updateOpportunity,
 } from '../services/opportunitiesJson'
 
@@ -85,6 +86,38 @@ export default function FacultyOpportunitiesPage() {
       clearInterval(timer)
     }
   }, [])
+
+  const hasLoadedEdit = useRef(false)
+
+  // Handle URL edit param - once only
+  useEffect(() => {
+    if (hasLoadedEdit.current) return
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const editId = urlParams.get('edit')
+    if (editId && !editingId) {
+      hasLoadedEdit.current = true
+      const loadForEdit = async () => {
+        const response = await getOpportunityById(editId)
+        if (response?.data) {
+          const picked = response.data
+          setEditingId(picked.id || picked._id)
+          setForm({
+            ...picked,
+            yearEligibility: picked.eligibilityCriteria ? picked.eligibilityCriteria.split(', ').map(s => s.trim()).filter(Boolean) : [],
+            departments: picked.department ? picked.department.split(', ').map(s => s.trim()).filter(Boolean) : [],
+            department: picked.department || 'Broadcast to All'  // fallback
+          })
+          // Clear URL param
+          window.history.replaceState({}, document.title, window.location.pathname)
+          toast.success('Editing opportunity loaded')
+        } else {
+          toast.error('Opportunity not found')
+        }
+      }
+      loadForEdit()
+    }
+  }, [editingId])
 
   const validate = (target) => {
     // Check required string fields specifically (skip arrays)
