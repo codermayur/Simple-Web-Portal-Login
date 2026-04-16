@@ -110,7 +110,7 @@ export default function FacultyOpportunitiesPage() {
           })
           // Clear URL param
           window.history.replaceState({}, document.title, window.location.pathname)
-          toast.success('Editing opportunity loaded')
+          toast.success('Editing opportunity')
         } else {
           toast.error('Opportunity not found')
         }
