@@ -101,6 +101,13 @@ export default function FacultyOpportunitiesPage() {
         const response = await getOpportunityById(editId)
         if (response?.data) {
           const picked = response.data
+          // Check if opportunity is archived
+          const today = new Date().toISOString().slice(0, 10)
+          if (picked.lastDate < today) {
+            toast.error('Cannot edit archived opportunities')
+            navigate('/faculty/dashboard')
+            return
+          }
           setEditingId(picked.id || picked._id)
           setForm({
             ...picked,

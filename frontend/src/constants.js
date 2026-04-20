@@ -16,6 +16,8 @@ export const DEPARTMENTS = [
 
 export const DEPARTMENT_OPTIONS = ['Broadcast to All', ...DEPARTMENTS]
 
+export const TYPES = ['All', 'Internship', 'Placement']
+
 export const STORAGE_KEYS = {
   auth: 'placement_auth',
   opportunities: 'placement_opportunities',

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import Layout from '../components/Layout'
 import OpportunityCard from '../components/OpportunityCard'
 import toast from 'react-hot-toast'
 import { EmptyState, SectionTitle, StatusMessage, Modal, Spinner } from '../components/ui'
 import { useAuth } from '../context/AuthContext'
-import { DEPARTMENTS } from '../constants'
+import { DEPARTMENTS, TYPES } from '../constants'
+import { matchesDepartmentFilter } from '../utils/opportunityFilters'
 import {
   deleteOpportunity,
   getOpportunities,
@@ -20,9 +21,21 @@ export default function FacultyDashboardPage() {
   const [selectedOpportunity, setSelectedOpportunity] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState('both')
+  const [typeFilter, setTypeFilter] = useState('All')
   const [search, setSearch] = useState('')
   const [selectedDepartment, setSelectedDepartment] = useState('Broadcast to All')
   const [sortOrder, setSortOrder] = useState('asc')
+
+  const searchRef = useRef(search)
+
+  useEffect(() => {
+    searchRef.current = search
+  }, [search])
+
+  const debouncedSearch = useCallback((value) => {
+    const timeoutId = setTimeout(() => setSearch(value), 300)
+    return () => clearTimeout(timeoutId)
+  }, [])
 
   const handleEdit = (opp) => {
     navigate(`/faculty/opportunities?edit=${opp._id || opp.id}`)
@@ -34,23 +47,24 @@ export default function FacultyDashboardPage() {
 
   const today = new Date().toISOString().slice(0, 10)
 
-  const filtered = useMemo(() => {
+  // Full filtered without statusFilter
+  const fullFiltered = useMemo(() => {
     let result = opportunities
       .filter((opp) => opp.announcementHeading.toLowerCase().includes(search.toLowerCase()))
-      .filter(
-        (opp) =>
-          selectedDepartment === 'Broadcast to All' ||
-          opp.department === 'Broadcast to All' ||
-          opp.department === selectedDepartment,
-      )
+      .filter((opp) => matchesDepartmentFilter(opp, selectedDepartment))
+      .filter((opp) => typeFilter === 'All' || opp.type === typeFilter)
       .sort((a, b) => (sortOrder === 'asc' ? a.lastDate.localeCompare(b.lastDate) : b.lastDate.localeCompare(a.lastDate)))
+    return result
+  }, [opportunities, search, selectedDepartment, typeFilter, sortOrder, today])
 
-    if (statusFilter === 'both') return result
-    return result.filter((opp) => {
-      const archived = opp.lastDate < today
-      return statusFilter === 'active' ? !archived : archived
-    })
-  }, [opportunities, search, selectedDepartment, sortOrder, statusFilter, today])
+  const active = useMemo(() => fullFiltered.filter((opp) => opp.lastDate >= today), [fullFiltered])
+  const archived = useMemo(() => fullFiltered.filter((opp) => opp.lastDate < today), [fullFiltered])
+
+  // filtered for total results count and status filter logic
+  const filtered = useMemo(() => {
+    if (statusFilter === 'both') return fullFiltered
+    return statusFilter === 'active' ? active : archived
+  }, [fullFiltered, statusFilter, active, archived])
 
   useEffect(() => {
     let mounted = true
@@ -85,13 +99,12 @@ export default function FacultyDashboardPage() {
   }, [])
 
 
-  const stats = useMemo(() => {
-    const active = opportunities.filter((opp) => opp.lastDate >= today).length
-    return { active, archived: opportunities.length - active }
-  }, [opportunities, today])
+  const stats = useMemo(() => ({
+    active: active.length,
+    archived: archived.length
+  }), [active.length, archived.length])
 
-  const active = filtered.filter((opp) => opp.lastDate >= today)
-  const archived = filtered.filter((opp) => opp.lastDate < today)
+  // active and archived already defined above from fullFiltered
 
   return (
     <Layout>
@@ -135,12 +148,17 @@ export default function FacultyDashboardPage() {
                 <input
                   className="input-modern w-full"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => debouncedSearch(e.target.value)}
                   placeholder="Search by opportunity heading..."
                 />
                 <select className="input-modern" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
                   <option value="asc">Deadline: Earliest First</option>
                   <option value="desc">Deadline: Latest First</option>
+                </select>
+                <select className="input-modern" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                  {TYPES.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
                 </select>
                 <select className="input-modern" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="both">All Opportunities</option>

@@ -88,7 +88,7 @@ export default function OpportunityCard({ opportunity, onEdit, onDelete, onClick
         )}
         {(onEdit || onDelete) && (
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 ml-2">
-            {onEdit && (
+            {onEdit && !archived && (
               <button
                 onClick={(e) => {
                   e.stopPropagation()

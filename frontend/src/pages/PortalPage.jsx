@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import OpportunityCard from '../components/OpportunityCard'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import MobileMenu from '../components/MobileMenu'
-import { DEPARTMENTS } from '../constants'
+import { DEPARTMENTS, TYPES } from '../constants'
+import { matchesDepartmentFilter } from '../utils/opportunityFilters'
 import { CalendarClock, GraduationCap, Building2, Sparkles } from 'lucide-react'
 import { EmptyState, SectionTitle, StatusMessage, Modal, Spinner } from '../components/ui'
 import { getOpportunities } from '../services/opportunitiesJson'
@@ -16,6 +17,7 @@ export default function PortalPage() {
   const [selectedDepartment, setSelectedDepartment] = useState('Broadcast to All')
   const [sortOrder, setSortOrder] = useState('asc')
   const [statusFilter, setStatusFilter] = useState('both')
+  const [typeFilter, setTypeFilter] = useState('All')
   const [opportunities, setOpportunities] = useState([])
   const [error, setError] = useState('')
   const [selectedOpportunity, setSelectedOpportunity] = useState(null)
@@ -47,25 +49,25 @@ export default function PortalPage() {
     }
   }, [])
 
-  const filtered = useMemo(() => {
-    const result = opportunities
+  // Full filtered without statusFilter
+  const fullFiltered = useMemo(() => {
+    let result = opportunities
       .filter((opp) => opp.announcementHeading.toLowerCase().includes(search.toLowerCase()))
-      .filter(
-        (opp) =>
-          selectedDepartment === 'Broadcast to All' ||
-          opp.department === 'Broadcast to All' ||
-          opp.department === selectedDepartment,
-      )
+      .filter((opp) => matchesDepartmentFilter(opp, selectedDepartment))
+      .filter((opp) => typeFilter === 'All' || opp.type === typeFilter)
       .sort((a, b) => (sortOrder === 'asc' ? a.lastDate.localeCompare(b.lastDate) : b.lastDate.localeCompare(a.lastDate)))
-    if (statusFilter === 'both') return result
-    return result.filter((opp) => {
-      const archived = opp.lastDate < today
-      return statusFilter === 'active' ? !archived : archived
-    })
-  }, [opportunities, search, selectedDepartment, sortOrder, statusFilter, today])
+    return result
+  }, [opportunities, search, selectedDepartment, typeFilter, sortOrder, today])
 
-  const active = filtered.filter((opp) => opp.lastDate >= today)
-  const archived = filtered.filter((opp) => opp.lastDate < today)
+  const active = useMemo(() => fullFiltered.filter((opp) => opp.lastDate >= today), [fullFiltered])
+  const archived = useMemo(() => fullFiltered.filter((opp) => opp.lastDate < today), [fullFiltered])
+
+  const filtered = useMemo(() => {
+    if (statusFilter === 'both') return fullFiltered
+    return statusFilter === 'active' ? active : archived
+  }, [fullFiltered, statusFilter, active, archived])
+
+
 
   // Modal handler to prevent stale data
   const handleModalClose = () => {
@@ -111,6 +113,11 @@ export default function PortalPage() {
             <select className="input-modern" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
               <option value="asc">Deadline: Earliest First</option>
               <option value="desc">Deadline: Latest First</option>
+            </select>
+            <select className="input-modern" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+              {TYPES.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
             </select>
             <select className="input-modern" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="both">All Opportunities</option>
